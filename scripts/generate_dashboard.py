@@ -100,6 +100,117 @@ else:
 
 bar_pct = int(score_pct)
 
+# ── Modelo TESIS ───────────────────────────────────────────────────────────────
+import math as _math
+
+TESIS_CAPITAL = 10_000   # inversión ejemplo en €
+TESIS_T0      = 5        # año de inflexión (2026 + 5 = 2031)
+TESIS_YEARS   = 10
+
+TESIS_SCEN = {
+    "BASE":      {"r": 0.20, "K": 2.0, "gamma": 0.50, "col": "#4ade80",  "col_bg": "#4ade8022"},
+    "ACELERADO": {"r": 0.25, "K": 4.0, "gamma": 0.90, "col": "#60a5fa",  "col_bg": "#60a5fa22"},
+    "ÓPTIMO":    {"r": 0.30, "K": 6.0, "gamma": 1.50, "col": "#facc15",  "col_bg": "#facc1522"},
+}
+
+def phi_L(t, K, gamma, t0=TESIS_T0):
+    return 1.0 + K / (1.0 + _math.exp(-gamma * (t - t0)))
+
+def tesis_proj(r, K, gamma, t):
+    phi0 = phi_L(0, K, gamma)
+    return TESIS_CAPITAL * ((1 + r) ** t) * phi_L(t, K, gamma) / phi0
+
+def lam_eff(K, gamma):
+    return gamma * K / (4 + 2 * K)
+
+# Proyecciones año a año
+tesis_data = {}
+for name, sc in TESIS_SCEN.items():
+    tesis_data[name] = [tesis_proj(sc["r"], sc["K"], sc["gamma"], t)
+                        for t in range(TESIS_YEARS + 1)]
+
+# SVG líneas (multi-serie)
+def svg_line_chart(series, w=640, h=220):
+    """series = [(label, [values], color)] — eje X = años 0..N"""
+    if not series: return ""
+    n_pts = len(series[0][1])
+    all_vals = [v for _, vals, _ in series for v in vals]
+    mn, mx = min(all_vals), max(all_vals)
+    rng = mx - mn or 1
+    pad_l, pad_r, pad_t, pad_b = 60, 20, 20, 30
+
+    def cx(i): return pad_l + i * (w - pad_l - pad_r) / (n_pts - 1)
+    def cy(v): return pad_t + (1 - (v - mn) / rng) * (h - pad_t - pad_b)
+
+    elems = []
+    # Grid lines horizontales
+    for frac in [0, 0.25, 0.5, 0.75, 1.0]:
+        y = pad_t + (1 - frac) * (h - pad_t - pad_b)
+        val = mn + frac * rng
+        elems.append(f'<line x1="{pad_l}" y1="{y:.1f}" x2="{w-pad_r}" y2="{y:.1f}" stroke="#1e293b" stroke-width="1"/>')
+        label = f"€{val/1000:.0f}K" if val >= 1000 else f"€{val:.0f}"
+        elems.append(f'<text x="{pad_l-4}" y="{y+4:.1f}" text-anchor="end" font-size="9" fill="#475569">{label}</text>')
+    # Eje X: años
+    for i in range(n_pts):
+        x = cx(i)
+        yr = 2026 + i
+        if i % 2 == 0:
+            elems.append(f'<text x="{x:.1f}" y="{h-6}" text-anchor="middle" font-size="9" fill="#475569">{yr}</text>')
+    # Curvas
+    for lbl, vals, col in series:
+        pts = " ".join(f"{cx(i):.1f},{cy(v):.1f}" for i, v in enumerate(vals))
+        elems.append(f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="2.5" stroke-linejoin="round"/>')
+        # Punto final con etiqueta
+        xf, yf = cx(n_pts-1), cy(vals[-1])
+        elems.append(f'<circle cx="{xf:.1f}" cy="{yf:.1f}" r="4" fill="{col}"/>')
+
+    return (f'<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg" '
+            f'style="width:100%;height:{h}px;display:block">'
+            + "".join(elems) + "</svg>")
+
+tesis_svg = svg_line_chart([
+    (name, tesis_data[name], sc["col"])
+    for name, sc in TESIS_SCEN.items()
+])
+
+# Tabla de proyección HTML
+def tesis_table_html():
+    rows = ""
+    for t in range(TESIS_YEARS + 1):
+        yr = 2026 + t
+        bold = ' style="font-weight:700"' if t in (0, 5, 10) else ""
+        row = f'<tr{bold}><td style="padding:4px 10px;color:#64748b">{yr}</td>'
+        for name, sc in TESIS_SCEN.items():
+            v = tesis_data[name][t]
+            vs = f"€{v:,.0f}".replace(",", ".")
+            mult = v / TESIS_CAPITAL
+            row += (f'<td style="padding:4px 10px;text-align:right;color:{sc["col"]}">'
+                    f'{vs} <span style="color:#475569;font-size:.8em">×{mult:.1f}</span></td>')
+        rows += row + "</tr>\n"
+    return rows
+
+tesis_rows = tesis_table_html()
+
+# Tabla parámetros
+def tesis_params_html():
+    rows = ""
+    for name, sc in TESIS_SCEN.items():
+        le = lam_eff(sc["K"], sc["gamma"])
+        f5  = tesis_data[name][5]
+        f10 = tesis_data[name][10]
+        rows += (f'<tr>'
+                 f'<td style="padding:6px 10px;color:{sc["col"]};font-weight:700">{name}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["r"]:.0%}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["K"]:.1f}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["gamma"]:.2f}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{le:.3f}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:{sc["col"]}">€{f5:,.0f}</td>'
+                 f'<td style="padding:6px 10px;text-align:right;color:{sc["col"]}">€{f10:,.0f}</td>'
+                 f'</tr>\n')
+    return rows
+
+tesis_params_rows = tesis_params_html()
+
 # ── SVG helpers ───────────────────────────────────────────────────────────────
 def svg_bar_chart(data, w=640, h=160):
     """data = [(label, value, color)] — valores pueden ser negativos."""
@@ -328,6 +439,63 @@ html = f"""<!DOCTYPE html>
   <div class="card">
     <h2 style="color:#64748b">CONTEXTO DE MERCADO</h2>
     {ctx_html}
+  </div>
+
+  <!-- Tesis: proyección logística -->
+  <div class="card">
+    <h2 style="color:#64748b">TESIS — V(t) = Capital × (1+r)ᵗ × Φ_L(t) / Φ_L(0)</h2>
+    <p style="color:#475569;font-size:.8rem;margin-bottom:16px">
+      Φ_L(t) = 1 + K / (1 + e<sup>−γ·(t−t₀)</sup>) &nbsp;·&nbsp;
+      t₀ = {TESIS_T0} (año {2026 + TESIS_T0}) &nbsp;·&nbsp;
+      Inversión ejemplo: €{TESIS_CAPITAL:,}
+    </p>
+
+    <!-- Leyenda -->
+    <div style="display:flex;gap:20px;margin-bottom:12px;flex-wrap:wrap">
+      {"".join(
+        f'<span style="color:{sc["col"]};font-weight:700;font-size:.85rem">▬ {name}</span>'
+        for name, sc in TESIS_SCEN.items()
+      )}
+    </div>
+
+    <!-- Gráfico curvas -->
+    {tesis_svg}
+
+    <!-- Parámetros -->
+    <div style="overflow-x:auto;margin-top:16px">
+    <table>
+      <thead>
+        <tr style="border-bottom:1px solid #1e293b">
+          <th style="padding:6px 10px;text-align:left;color:#475569;font-size:.8em">ESCENARIO</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">r</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">K</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">γ</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">λ_eff</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">€ año 5</th>
+          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">€ año 10</th>
+        </tr>
+      </thead>
+      <tbody>{tesis_params_rows}</tbody>
+    </table>
+    </div>
+
+    <!-- Tabla año a año -->
+    <details style="margin-top:16px">
+      <summary style="color:#475569;font-size:.8rem;cursor:pointer;user-select:none">
+        Ver proyección año a año ▸
+      </summary>
+      <div style="overflow-x:auto;margin-top:10px">
+      <table>
+        <thead>
+          <tr style="border-bottom:1px solid #1e293b">
+            <th style="padding:4px 10px;text-align:left;color:#475569;font-size:.8em">AÑO</th>
+            {"".join(f'<th style="padding:4px 10px;text-align:right;color:{sc["col"]};font-size:.8em">{name}</th>' for name, sc in TESIS_SCEN.items())}
+          </tr>
+        </thead>
+        <tbody>{tesis_rows}</tbody>
+      </table>
+      </div>
+    </details>
   </div>
 
   <!-- Footer -->
