@@ -41,19 +41,23 @@ def fchg(c, unit="%"):
     return f'<span style="color:{col}">{sign}{c:.1f}{unit}</span>'
 
 # ── Calcular señales ──────────────────────────────────────────────────────────
-sox_v,  sox_1m,  _  = gv("SOX")
-cop_v,  cop_1m,  _  = gv("COPPER")
-nas_v,  nas_1m,  _  = gv("NASDAQ")
-btc_v,  btc_1m,  _  = gv("BTC")
-ur_v,   ur_1m,   _  = gv("URANIUM")
-xlu_v,  xlu_1m,  _  = gv("XLU")
-gold_v, gold_1m, _  = gv("GOLD")
-sp_v,   sp_1m,   _  = gv("SPREAD")
-vix_v,  vix_1m,  _  = gv("VIX")
+sox_v,   sox_1m,  _  = gv("SOX")
+cop_v,   cop_1m,  _  = gv("COPPER")
+nas_v,   nas_1m,  _  = gv("NASDAQ")
+robo_v,  robo_1m, _  = gv("ROBO")
+qtum_v,  qtum_1m, _  = gv("QTUM")
+btc_v,   btc_1m,  _  = gv("BTC")
+ur_v,    ur_1m,   _  = gv("URANIUM")
+xlu_v,   xlu_1m,  _  = gv("XLU")
+gold_v,  gold_1m, _  = gv("GOLD")
+sp_v,    sp_1m,   _  = gv("SPREAD")
+vix_v,   vix_1m,  _  = gv("VIX")
 
 sox_up   = sox_1m  is not None and sox_1m  >= 2
 cop_up   = cop_1m  is not None and cop_1m  >= 2
 nas_ok   = nas_1m  is not None and nas_1m  >= 2
+robo_ok  = robo_1m is not None and robo_1m >= 2
+qtum_ok  = qtum_1m is not None and qtum_1m >= 3
 btc_mom  = btc_1m  is not None and btc_1m  >= 5
 btc_beat = btc_1m  is not None and nas_1m  is not None and btc_1m > nas_1m
 ur_ok    = ur_1m   is not None and ur_1m   >= 2
@@ -62,7 +66,7 @@ gold_ok  = gold_1m is not None and gold_1m >= 2
 spr_ok   = sp_v    is not None and sp_v    > 0.3
 vix_ok   = vix_v   is not None and vix_v   < 20
 
-checks = [sox_up, nas_ok, btc_mom, btc_beat, ur_ok, xlu_ok, cop_up, gold_ok, spr_ok, vix_ok]
+checks = [sox_up, nas_ok, robo_ok, qtum_ok, btc_mom, btc_beat, ur_ok, xlu_ok, cop_up, gold_ok, spr_ok, vix_ok]
 score_n   = sum(1 for c in checks if c)
 score_pct = score_n / len(checks) * 100
 
@@ -165,8 +169,10 @@ def signal_row(icon, label, val_s, chg_html, condition, ok):
 signals_html = ""
 # Autoreplicación IA
 signals_html += f'<tr><td colspan="5" style="padding:8px 10px 2px;color:#38bdf8;font-weight:bold;font-size:.8em;letter-spacing:.1em">AUTOREPLICACIÓN IA</td></tr>'
-signals_html += signal_row("📡","SOX Semiconductores", fval(sox_v,2,""), fchg(sox_1m), "+2%/1M", sox_up)
-signals_html += signal_row("💻","NASDAQ Tech",         fval(nas_v,0,""), fchg(nas_1m), "+2%/1M", nas_ok)
+signals_html += signal_row("📡","SOX Semiconductores", fval(sox_v,2,""),  fchg(sox_1m),  "+2%/1M", sox_up)
+signals_html += signal_row("💻","NASDAQ Tech",          fval(nas_v,0,""),  fchg(nas_1m),  "+2%/1M", nas_ok)
+signals_html += signal_row("🤖","ROBO Robótica",        fval(robo_v,2,""), fchg(robo_1m), "+2%/1M", robo_ok)
+signals_html += signal_row("⚛","QTUM Cuántica",         fval(qtum_v,2,""), fchg(qtum_1m), "+3%/1M", qtum_ok)
 
 signals_html += f'<tr><td colspan="5" style="padding:8px 10px 2px;color:#facc15;font-weight:bold;font-size:.8em;letter-spacing:.1em">ESCASEZ DIGITAL</td></tr>'
 signals_html += signal_row("₿","BTC momentum",        fval(btc_v,0,"€"), fchg(btc_1m), "+5%/1M", btc_mom)
@@ -250,7 +256,7 @@ html = f"""<!DOCTYPE html>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h2 style="margin:0;color:#38bdf8">⚡ SCORE ESCASEZ</h2>
       <span style="font-size:1.5rem;font-weight:700;color:{score_col}">{score_pct:.0f}%
-        <span style="font-size:.9rem;color:#64748b">({score_n}/10)</span>
+        <span style="font-size:.9rem;color:#64748b">({score_n}/12)</span>
       </span>
     </div>
     <div class="bar-bg">
