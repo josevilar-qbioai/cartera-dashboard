@@ -44,6 +44,8 @@ MACRO_TICKERS = [
     # IA · Data Centers · Energía digital
     ("XLU",        "XLU",       "Utilities EEUU (XLU)",  "",       2),
     ("^SOX",       "SOX",       "Semiconductores (SOX)", "",       2),
+    ("ROBO",       "ROBO",      "Robótica global (ROBO ETF)", "",  2),
+    ("QTUM",       "QTUM",      "Computación Cuántica (QTUM)", "", 2),
     # Cripto
     ("BTC-USD",    "BTC",       "Bitcoin (USD)",         "",       0),
 ]
