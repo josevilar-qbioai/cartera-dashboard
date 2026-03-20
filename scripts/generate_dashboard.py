@@ -120,9 +120,6 @@ def tesis_proj(r, K, gamma, t):
     phi0 = phi_L(0, K, gamma)
     return TESIS_CAPITAL * ((1 + r) ** t) * phi_L(t, K, gamma) / phi0
 
-def lam_eff(K, gamma):
-    return gamma * K / (4 + 2 * K)
-
 # Proyecciones año a año
 tesis_data = {}
 for name, sc in TESIS_SCEN.items():
@@ -195,7 +192,6 @@ tesis_rows = tesis_table_html()
 def tesis_params_html():
     rows = ""
     for name, sc in TESIS_SCEN.items():
-        le = lam_eff(sc["K"], sc["gamma"])
         f5  = tesis_data[name][5]
         f10 = tesis_data[name][10]
         rows += (f'<tr>'
@@ -203,7 +199,6 @@ def tesis_params_html():
                  f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["r"]:.0%}</td>'
                  f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["K"]:.1f}</td>'
                  f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{sc["gamma"]:.2f}</td>'
-                 f'<td style="padding:6px 10px;text-align:right;color:#e2e8f0">{le:.3f}</td>'
                  f'<td style="padding:6px 10px;text-align:right;color:{sc["col"]}">€{f5:,.0f}</td>'
                  f'<td style="padding:6px 10px;text-align:right;color:{sc["col"]}">€{f10:,.0f}</td>'
                  f'</tr>\n')
@@ -470,7 +465,6 @@ html = f"""<!DOCTYPE html>
           <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">r</th>
           <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">K</th>
           <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">γ</th>
-          <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">λ_eff</th>
           <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">€ año 5</th>
           <th style="padding:6px 10px;text-align:right;color:#475569;font-size:.8em">€ año 10</th>
         </tr>
