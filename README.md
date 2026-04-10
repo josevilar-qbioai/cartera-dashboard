@@ -1,73 +1,75 @@
-# ⚡ Tesis Escasez y Resiliencia — Dashboard
+# ⚡ Scarcity & Resilience Thesis — Dashboard
 
-**[→ Ver el dashboard en vivo](https://josevilar-qbioai.github.io/cartera-dashboard/)**
+🌐 **Language / Idioma:** English | [Español](README_ES.md)
 
-Dashboard de validación macro de la tesis de inversión *Cartera Escasez y Resiliencia*, actualizado automáticamente con datos de Yahoo Finance.
+**[→ View live dashboard](https://josevilar-qbioai.github.io/cartera-dashboard/)**
+
+Macro validation dashboard for the *Scarcity and Resilience* investment thesis, updated automatically with Yahoo Finance data.
 
 ---
 
-## Qué muestra
+## What it shows
 
-### ⚡ Score ESCASEZ
-Indicador compuesto 0–100% calculado a partir de **12 señales binarias** agrupadas por pilar de la tesis. Mide en tiempo real si el entorno macro es favorable a la hipótesis de inversión.
+### ⚡ SCARCITY Score
+Composite indicator 0–100% calculated from **12 binary signals** grouped by thesis pillar. Measures in real time whether the macro environment is favourable to the investment hypothesis.
 
-| Estado | Score | Significado |
-|--------|-------|-------------|
-| 🟢 TESIS EN MARCHA | ≥ 65% | Todos los pilares alineados |
-| 🟡 SEÑALES MIXTAS | 40–64% | Entorno parcialmente favorable |
-| 🔴 TESIS DÉBIL | < 40% | Modo defensivo |
+| Status | Score | Meaning |
+|--------|-------|---------|
+| 🟢 THESIS RUNNING | ≥ 65% | All pillars aligned |
+| 🟡 MIXED SIGNALS | 40–64% | Partially favourable environment |
+| 🔴 WEAK THESIS | < 40% | Defensive mode |
 
-### 🔴🟢 Correlación SOX / Cobre
-Detector de cambio de paradigma tecnológico. Compara el momentum mensual de los semiconductores (SOX) con el del cobre:
+### 🔴🟢 SOX / Copper Correlation
+Technological paradigm-shift detector. Compares the monthly momentum of semiconductors (SOX) with copper:
 
-| Estado | Condición | Acción |
+| Status | Condition | Action |
 |--------|-----------|--------|
-| 🟢 ERA DE CONSTRUCCIÓN | SOX ↑ y Cobre ↑ | Tesis completa en marcha |
-| 🔴 DIVERGENCIA · ALERTA | SOX ↑ / Cobre ↓ | La IA miniaturiza — reducir metales |
-| 🟡 ESCASEZ FÍSICA | SOX ↓ / Cobre ↑ | Metales fuertes, esperar rebote SOX |
-| 🔴 CONTRACCIÓN | SOX ↓ y Cobre ↓ | Modo defensivo |
+| 🟢 CONSTRUCTION ERA | SOX ↑ and Copper ↑ | Full thesis running |
+| 🔴 DIVERGENCE · ALERT | SOX ↑ / Copper ↓ | AI miniaturising — reduce metals |
+| 🟡 PHYSICAL SCARCITY | SOX ↓ / Copper ↑ | Strong metals, wait for SOX rebound |
+| 🔴 CONTRACTION | SOX ↓ and Copper ↓ | Defensive mode |
 
-### 📊 Señales por pilar
+### 📊 Signals by pillar
 
-**Autoreplicación IA**
-- 📡 SOX Semiconductores — proxy λ, capex IA adelantado
-- 💻 NASDAQ Tech — momentum tecnológico global
-- 🤖 ROBO Robótica — Ola 2: automatización física
-- ⚛ QTUM Computación Cuántica — Ola 3/4: post-silicio
+**AI Self-Replication**
+- 📡 SOX Semiconductors — proxy K and γ, forward AI capex
+- 💻 NASDAQ Tech — global tech momentum
+- 🤖 ROBO Robotics — Wave 2: physical automation
+- ⚛ QTUM Quantum Computing — Wave 3/4: post-silicon
 
-**Escasez Digital**
-- ₿ BTC momentum — reserva de valor programada
-- ₿ BTC vs NASDAQ — fuerza relativa del bitcoin
+**Digital Scarcity**
+- ₿ BTC momentum — programmed store of value
+- ₿ BTC vs NASDAQ — Bitcoin relative strength
 
-**Energía / Grid**
-- ⚛️ Uranio (Cameco) — energía firme 24/7 para IA
-- ⚡ XLU Utilities — PPAs con hyperscalers
+**Energy / Grid**
+- ⚛️ Uranium (Cameco) — firm 24/7 energy for AI
+- ⚡ XLU Utilities — PPAs with hyperscalers
 
-**Escasez Física**
-- 🟠 Cobre — electrificación y robótica
-- 🥇 Oro — refugio ante devaluación fiat
+**Physical Scarcity**
+- 🟠 Copper — electrification and robotics
+- 🥇 Gold — hedge against fiat debasement
 
-**Resiliencia**
-- 📈 Spread 10Y−13W — salud de la curva de tipos
-- 😰 VIX — volatilidad implícita del mercado
+**Resilience**
+- 📈 Spread 10Y−13W — yield curve health
+- 😰 VIX — implied market volatility
 
 ---
 
-## Modelo matemático
+## Mathematical model
 
 ```
-V(t) = Capital × (1+r)ᵗ × Φ_L(t)
+V(t) = Capital × (1+r)ᵗ × Φ_L(t) / Φ_L(0)
 
 Φ_L(t) = 1 + K / (1 + e^(−γ·(t−t₀)))
 ```
 
-Donde `Φ_L(t)` es la función logística de adopción tecnológica que captura la aceleración no lineal del crecimiento cuando la IA entra en fase de autorreplicación.
+Where `Φ_L(t)` is the logistic technology-adoption function that captures the non-linear growth acceleration when AI enters the self-replication phase.
 
 ---
 
-## Actualización
+## Updates
 
-El dashboard se regenera automáticamente con cada push mediante GitHub Actions. Los datos macro se descargan de Yahoo Finance.
+The dashboard is regenerated automatically on every push via GitHub Actions. Macro data is downloaded from Yahoo Finance.
 
 ---
 
